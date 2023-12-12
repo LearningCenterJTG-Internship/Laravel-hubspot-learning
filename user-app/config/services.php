@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'hubspot' => [
+        'client_id' => env('HS_CLIENT_ID'),
+        'client_secret' => env('HS_CLIENT_SECRET'),
+        'redirect' => env('HS_REDIRECT_URL'),
+    ],
 ];
