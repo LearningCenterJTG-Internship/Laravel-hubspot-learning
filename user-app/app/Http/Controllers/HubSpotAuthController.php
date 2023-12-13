@@ -16,8 +16,9 @@ class HubSpotAuthController extends Controller
         $scopes = [
             'crm.objects.contacts.read',
             'crm.objects.contacts.write',
-            'cms.domains.read',
-            'cms.domains.write',
+            'crm.lists.read',
+            'crm.lists.write',
+            'oauth',
         ];
 
         $query = http_build_query([
@@ -49,11 +50,15 @@ class HubSpotAuthController extends Controller
         ]);
 
         $token = json_decode((string) $response->getBody(), true)['access_token'];
+        $return_body = json_decode((string) $response->getBody(), true);
 
         if ($token) {
             ###### token issue!!!! #########
             session(['hubspot_access_token' => $token]);
             echo 'Success: Access token obtained.';
+            echo $token;
+            var_dump($return_body);
+            
         } else {
             echo 'Error: Failed to obtain access token.';
         }
@@ -86,19 +91,14 @@ class HubSpotAuthController extends Controller
     # save token - to be finished
     public function createContact($contact) {
         ###### token issue!!!! #########
-        $token = session('hubspot_access_token');
-
-        dd($token);
+        #$token = session('hubspot_access_token');
+        $token = "";
         
-        $response = \Http::withOptions([
-            'verify' => 'D:\XAMPP\apache\bin\curl-ca-bundle.crt',
+        $response = \Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'Content-Type' => 'application/json',
         ])->post('https://api.hubapi.com/crm/v3/objects/contacts', [
             'properties' => $contact,
-        ], [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Content-Type' => 'application/json',
-            ],
         ]);
 
         if ($response->successful()) {
@@ -107,19 +107,5 @@ class HubSpotAuthController extends Controller
         } else {
             dd('Error uploading:', $response->body());
         }
-    }
-
-
-    # using webhook to create new contact
-    public function webhook(Request $request)
-    {
-        $data = $request->json()->all();
-
-        $contactName = $data['properties']['firstname']['value'];
-        $contactEmail = $data['properties']['email']['value'];
-
-        \Log::info("Received contact: $contactName, $contactEmail");
-
-        return response()->json(['status' => 'success']);
     }
 }
