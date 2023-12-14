@@ -54,10 +54,8 @@ class HubSpotAuthController extends Controller
         $token = json_decode((string) $response->getBody(), true)['access_token'];
         $refresh_token = json_decode((string) $response->getBody(), true)['refresh_token'];
 
-        $return_body = json_decode((string) $response->getBody(), true);
-
         if ($token) {
-            ###### token issue!!!! #########
+            
             $hubspotToken = new HubspotToken();
             $hubspotToken->access_token = $token;
             $hubspotToken->refresh_token = $refresh_token;
@@ -95,7 +93,7 @@ class HubSpotAuthController extends Controller
 
     # save token - to be finished
     public function createContact($contact) {
-        $token = HubspotToken::latest()->first()->access_token;
+        $token = HubspotToken::latest()->first()->getAccessToken();
         
         $response = \Http::withHeaders([
             'Authorization' => 'Bearer ' . $token,

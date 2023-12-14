@@ -40,7 +40,7 @@ class WebhookController extends Controller
     private function handleNewContact($event) {
         $objectId = $event['objectId'];
         
-        $token = HubspotToken::latest()->first()->access_token;
+        $token = HubspotToken::latest()->first()->getAccessToken();
 
         $response = \Http::withHeaders([
             'Authorization' => 'Bearer ' . $token,
