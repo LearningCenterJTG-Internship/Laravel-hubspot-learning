@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Session;
 use HubSpot\Client\Auth\OAuth\ApiException;
-
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Config;
+use \App\Models\HubspotToken;
 
 class HubSpotAuthController extends Controller
 {
@@ -50,15 +52,18 @@ class HubSpotAuthController extends Controller
         ]);
 
         $token = json_decode((string) $response->getBody(), true)['access_token'];
+        $refresh_token = json_decode((string) $response->getBody(), true)['refresh_token'];
+
         $return_body = json_decode((string) $response->getBody(), true);
 
         if ($token) {
             ###### token issue!!!! #########
-            session(['hubspot_access_token' => $token]);
+            $hubspotToken = new HubspotToken();
+            $hubspotToken->access_token = $token;
+            $hubspotToken->refresh_token = $refresh_token;
+            $hubspotToken->save();
+
             echo 'Success: Access token obtained.';
-            echo $token;
-            var_dump($return_body);
-            
         } else {
             echo 'Error: Failed to obtain access token.';
         }
@@ -90,9 +95,7 @@ class HubSpotAuthController extends Controller
 
     # save token - to be finished
     public function createContact($contact) {
-        ###### token issue!!!! #########
-        #$token = session('hubspot_access_token');
-        $token = "";
+        $token = HubspotToken::latest()->first()->access_token;
         
         $response = \Http::withHeaders([
             'Authorization' => 'Bearer ' . $token,

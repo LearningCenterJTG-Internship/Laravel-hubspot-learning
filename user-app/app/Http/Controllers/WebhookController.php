@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Product;
 use App\Models\Contact;
+use \App\Models\HubspotToken;
 
 class WebhookController extends Controller
 {
@@ -39,7 +40,8 @@ class WebhookController extends Controller
     private function handleNewContact($event) {
         $objectId = $event['objectId'];
         
-        $token = '';
+        $token = HubspotToken::latest()->first()->access_token;
+
         $response = \Http::withHeaders([
             'Authorization' => 'Bearer ' . $token,
             'Content-Type' => 'application/json',
@@ -101,7 +103,6 @@ class WebhookController extends Controller
         $this->deleteContact($objectId);
     }
     private function deleteContact($objectId) {
-        $token = "";
 
         $response = \Http::delete("https://api.hubapi.com/crm/v3/objects/contacts/{$objectId}");
 
