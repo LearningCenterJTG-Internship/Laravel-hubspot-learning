@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Session;
 use HubSpot\Client\Auth\OAuth\ApiException;
 use Illuminate\Support\Facades\Crypt;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use \App\Models\HubspotToken;
 
@@ -51,14 +52,23 @@ class HubSpotAuthController extends Controller
             ],
         ]);
 
+        
+
         $token = json_decode((string) $response->getBody(), true)['access_token'];
         $refresh_token = json_decode((string) $response->getBody(), true)['refresh_token'];
+        $expires_in = json_decode((string) $response->getBody(), true)['expires_in'];
+        $expires_at = Carbon::now()->addSeconds($expires_in);
 
-        if ($token) {
+        if ($token && $refresh_token) {
+            HubspotToken::latest()->first()->delete();
+
+            $encyptedToken = Crypt::encrypt($token);
+            $encyptedRefresh = Crypt::encrypt($refresh_token);
             
             $hubspotToken = new HubspotToken();
-            $hubspotToken->access_token = $token;
-            $hubspotToken->refresh_token = $refresh_token;
+            $hubspotToken->access_token = $encyptedToken;
+            $hubspotToken->refresh_token = $encyptedRefresh;
+            $hubspotToken->expires_at = $expires_at;
             $hubspotToken->save();
 
             echo 'Success: Access token obtained.';

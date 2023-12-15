@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
+use Carbon\Carbon;
+
 
 class HubspotToken extends Model
 {
@@ -27,7 +30,7 @@ class HubspotToken extends Model
                 'client_id' => config('services.hubspot.client_id'),
                 'client_secret' => config('services.hubspot.client_secret'),
                 'redirect_uri' => config('services.hubspot.redirect'),
-                'refresh_token' => HubspotToken::latest()->first()->refresh_token
+                'refresh_token' => decrypt(HubspotToken::latest()->first()->refresh_token)
             ],
         ]);
 
@@ -46,9 +49,10 @@ class HubspotToken extends Model
 
     public function getAccessToken() {
         if ($this->isExpired()) {
+            $this->where('expires_at', '<', Carbon::now())->delete();
             return $this->tokenRefresh();
         } else {
-            return $this->access_token;
+            return decrypt($this->access_token);
         }
     }
 }
