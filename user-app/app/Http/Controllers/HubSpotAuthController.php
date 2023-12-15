@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use \App\Models\HubspotToken;
+use App\Models\Contact;
 
 class HubSpotAuthController extends Controller
 {
@@ -101,7 +102,7 @@ class HubSpotAuthController extends Controller
         echo "Success";
     }
 
-    # save token - to be finished
+
     public function createContact($contact) {
         $token = HubspotToken::latest()->first()->getAccessToken();
         

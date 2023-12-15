@@ -5,6 +5,9 @@ use Illuminate\Http\Request;
 use App\Product;
 use App\Models\Contact;
 use \App\Models\HubspotToken;
+use App\Jobs\CreateContactJob;
+use App\Jobs\DeleteContactJob;
+use App\Jobs\UpdateContactJob;
 
 class WebhookController extends Controller
 {
@@ -16,7 +19,6 @@ class WebhookController extends Controller
     # - update email
     public function webhookProcess(Request $request) {
         $data = $request->all();
-        \Log::info($data);
 
         try {
             foreach($data as $event) {
@@ -39,42 +41,9 @@ class WebhookController extends Controller
     # handle new contact info (create)
     private function handleNewContact($event) {
         $objectId = $event['objectId'];
-        
-        $token = HubspotToken::latest()->first()->getAccessToken();
-
-        $response = \Http::withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-            'Content-Type' => 'application/json',
-        ])->get("https://api.hubapi.com/crm/v3/objects/contacts/{$objectId}");
-
-        if ($response->successful()) {
-            $data = $response->json()['properties'];
-            
-            $firstName = $data['firstname'];
-            $lastName = $data['lastname'];
-            $email = $data['email'];
-            $phone = "";
-            $company = "";
-            $website = "";
-            $lifecyclestage = "";
-            
-            # save to database
-            Contact::create([
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'email' => $email,
-                'phone' => $phone,
-                'company' => $company,
-                'website' => $website,
-                'lifecyclestage' => $lifecyclestage,
-                'contact_id' => $objectId
-            ]);
-
-            return response()->json(['success' => true]);
-        } else {
-            return response()->json(['error' => 'Failed to fetch contacts'], $response->status());
-        }
-        
+        \Log::info("this is webhook id: " . $objectId);
+        CreateContactJob::dispatch($objectId)->onQueue('hubspot-contact-fetch');
+        return response()->json(['success' => true]);
     }
 
     # handle property change info (update)
@@ -83,38 +52,13 @@ class WebhookController extends Controller
         $propertyName = $event['propertyName'];
         $newPropertyValue = $event['propertyValue'];
 
-        $this->updateContact($objectId, $propertyName, $newPropertyValue);
+        UpdateContactJob::dispatch($objectId, $propertyName, $newPropertyValue)->onQueue('update-contact-property');
     }
 
-    private function updateContact($objectId, $propertyName, $newPropertyValue) {
-
-        // locate contact in database
-        $contact = Contact::where('contact_id', $objectId)->first();
-        if ($contact) {
-            $contact->email = $newPropertyValue;
-            $contact->save();
-        }
-
-    }
 
     # handle deleting contact
     private function handleContactDelete($event) {
         $objectId = $event['objectId'];
-        $this->deleteContact($objectId);
+        DeleteContactJob::dispatch($objectId)->onQueue('hubspot-contact-delete');
     }
-    private function deleteContact($objectId) {
-
-        $response = \Http::delete("https://api.hubapi.com/crm/v3/objects/contacts/{$objectId}");
-
-        if (!$response->successful()) {
-            \Log::error("Failed to delete contact from HubSpot API: {$response->status()} - {$response->body()}");
-        }
-
-        $contact = Contact::where('contact_id', $objectId)->first();
-        if ($contact) {
-            $contact->delete();
-            \Log::info("Contact deleted from HubSpot and database: {$objectId}");
-        }
-    }
-
 }
