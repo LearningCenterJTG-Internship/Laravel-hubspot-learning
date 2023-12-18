@@ -28,6 +28,7 @@ class DeleteContactJob implements ShouldQueue
      */
     public function handle()
     {
+        
         $response = \Http::delete("https://api.hubapi.com/crm/v3/objects/contacts/{$this->objectId}");
 
         if (!$response->successful()) {

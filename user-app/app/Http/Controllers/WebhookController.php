@@ -41,8 +41,7 @@ class WebhookController extends Controller
     # handle new contact info (create)
     private function handleNewContact($event) {
         $objectId = $event['objectId'];
-        \Log::info("this is webhook id: " . $objectId);
-        CreateContactJob::dispatch($objectId)->onQueue('hubspot-contact-fetch');
+        CreateContactJob::dispatch($objectId)->onQueue('default');
         return response()->json(['success' => true]);
     }
 
@@ -52,13 +51,13 @@ class WebhookController extends Controller
         $propertyName = $event['propertyName'];
         $newPropertyValue = $event['propertyValue'];
 
-        UpdateContactJob::dispatch($objectId, $propertyName, $newPropertyValue)->onQueue('update-contact-property');
+        UpdateContactJob::dispatch($objectId, $propertyName, $newPropertyValue)->onQueue('default');
     }
 
 
     # handle deleting contact
     private function handleContactDelete($event) {
         $objectId = $event['objectId'];
-        DeleteContactJob::dispatch($objectId)->onQueue('hubspot-contact-delete');
+        DeleteContactJob::dispatch($objectId)->onQueue('default');
     }
 }

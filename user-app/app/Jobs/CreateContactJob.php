@@ -33,15 +33,16 @@ class CreateContactJob implements ShouldQueue
 
         $token = HubspotToken::latest()->first()->getAccessToken();
 
-        \Log::info("this is webhook id11: " . objectId);
-
         $response = \Http::withHeaders([
             'Authorization' => 'Bearer ' . $token,
             'Content-Type' => 'application/json',
-        ])->get("https://api.hubapi.com/crm/v3/objects/contacts/{objectId}");
+        ])->get("https://api.hubapi.com/crm/v3/objects/contacts/{$objectId}");
 
         if ($response->successful()) {
+            \Log::info($response->json());
             $data = $response->json()['properties'];
+
+            
             
             $firstName = $data['firstname'];
             $lastName = $data['lastname'];
@@ -50,11 +51,15 @@ class CreateContactJob implements ShouldQueue
             $company = "";
             $website = "";
             $lifecyclestage = "";
+
+            \Log::info(
+                "This is firstname: $firstName"
+            );
             
             # save to database
             Contact::create([
-                'first_name' => $firstName,
-                'last_name' => $lastName,
+                'firstname' => $firstName,
+                'lastname' => $lastName,
                 'email' => $email,
                 'phone' => $phone,
                 'company' => $company,

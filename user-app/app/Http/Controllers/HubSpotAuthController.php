@@ -61,7 +61,6 @@ class HubSpotAuthController extends Controller
         $expires_at = Carbon::now()->addSeconds($expires_in);
 
         if ($token && $refresh_token) {
-            HubspotToken::latest()->first()->delete();
 
             $encyptedToken = Crypt::encrypt($token);
             $encyptedRefresh = Crypt::encrypt($refresh_token);

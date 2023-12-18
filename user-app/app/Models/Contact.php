@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Contact extends Model
 {
     protected $fillable = [
-        'first_name', 
-        'last_name', 
+        'firstname', 
+        'lastname', 
         'email',
         'phone',
         'company',
