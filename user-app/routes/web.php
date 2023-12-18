@@ -37,3 +37,4 @@ Route::post('/upload-contact', [HubSpotAuthController::class, 'uploadContact'])-
 Route::post('/hubspot/contact', [WebhookController::class, 'webhookProcess']);
 
 
+

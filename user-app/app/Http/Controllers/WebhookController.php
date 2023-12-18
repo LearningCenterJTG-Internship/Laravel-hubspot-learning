@@ -8,6 +8,9 @@ use \App\Models\HubspotToken;
 use App\Jobs\CreateContactJob;
 use App\Jobs\DeleteContactJob;
 use App\Jobs\UpdateContactJob;
+use App\Jobs\CreateCompanyJob;
+use App\Jobs\UpdateCompanyJob;
+use App\Jobs\DeleteCompanyJob;
 
 class WebhookController extends Controller
 {
@@ -20,6 +23,8 @@ class WebhookController extends Controller
     public function webhookProcess(Request $request) {
         $data = $request->all();
 
+        \Log::info($data);
+
         try {
             foreach($data as $event) {
                 
@@ -29,6 +34,12 @@ class WebhookController extends Controller
                     $this->handleContactProperty($event);
                 } else if ($event['subscriptionType'] === 'contact.deletion') {
                     $this->handleContactDelete($event);
+                } else if ($event['subscriptionType'] === 'company.creation') {
+                    $this->handleNewCompany($event);
+                } else if($event['subscriptionType'] === 'company.propertyChange') {
+                    $this->handleCompanyProperty($event);
+                } else if ($event['subscriptionType'] === 'company.deletion') {
+                    $this->handleCompanyDelete($event);
                 }
             }
 
@@ -54,10 +65,28 @@ class WebhookController extends Controller
         UpdateContactJob::dispatch($objectId, $propertyName, $newPropertyValue)->onQueue('default');
     }
 
-
     # handle deleting contact
     private function handleContactDelete($event) {
         $objectId = $event['objectId'];
         DeleteContactJob::dispatch($objectId)->onQueue('default');
+    }
+
+    private function handleNewCompany($event) {
+        $objectId = $event['objectId'];
+        CreateCompanyJob::dispatch($objectId)->onQueue('default');
+        return response()->json(['success' => true]);
+    }
+
+    private function handleCompanyProperty($event) {
+        $objectId = $event['objectId'];
+        $propertyName = $event['propertyName'];
+        $newPropertyValue = $event['propertyValue'];
+
+        UpdateCompanyJob::dispatch($objectId, $propertyName, $newPropertyValue)->onQueue('default');
+    }
+
+    private function handleCompanyDelete($event) {
+        $objectId = $event['objectId'];
+        DeleteCompanyJob::dispatch($objectId)->onQueue('default');
     }
 }

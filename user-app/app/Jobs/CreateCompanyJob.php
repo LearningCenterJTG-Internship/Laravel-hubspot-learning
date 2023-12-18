@@ -9,9 +9,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\HubspotToken;
-use App\Models\Contact;
+use App\Models\Company;
 
-class CreateContactJob implements ShouldQueue
+class CreateCompanyJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $objectId;
@@ -28,7 +28,7 @@ class CreateContactJob implements ShouldQueue
      * Execute the job.
      */
     public function handle()
-    {   
+    {
         $objectId = $this->objectId;
 
         $token = HubspotToken::latest()->first()->getAccessToken();
@@ -36,30 +36,26 @@ class CreateContactJob implements ShouldQueue
         $response = \Http::withHeaders([
             'Authorization' => 'Bearer ' . $token,
             'Content-Type' => 'application/json',
-        ])->get("https://api.hubapi.com/crm/v3/objects/contacts/{$objectId}");
+        ])->get("https://api.hubapi.com/crm/v3/objects/companies/{$objectId}");
 
         if ($response->successful()) {
 
             $data = $response->json()['properties'];    
             
-            $firstName = $data['firstname'];
-            $lastName = $data['lastname'];
-            $email = $data['email'];
-            $phone = "";
-            $company = "";
-            $website = "";
-            $lifecyclestage = "";
-            
+            $companyName = $data['name'];
+            $companyDomain = $data['domain'];
+
             # save to database
-            Contact::create([
-                'firstname' => $firstName,
-                'lastname' => $lastName,
-                'email' => $email,
-                'phone' => $phone,
-                'company' => $company,
-                'website' => $website,
-                'lifecyclestage' => $lifecyclestage,
-                'contact_id' => $objectId
+            Company::create([
+                "name" => $companyName,
+                "domain" => $companyDomain,
+                "city" => "",
+                "industry" => "",
+                "address" => "",
+                "phone" => "",
+                "state" => "",
+                "lifecyclestage" => "",
+                "company_id" => $objectId
             ]);
 
             return response()->json(['success' => true]);

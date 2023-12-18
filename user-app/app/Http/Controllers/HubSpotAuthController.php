@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
-use Illuminate\Support\Facades\Session;
 use HubSpot\Client\Auth\OAuth\ApiException;
 use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
@@ -20,6 +19,8 @@ class HubSpotAuthController extends Controller
         $scopes = [
             'crm.objects.contacts.read',
             'crm.objects.contacts.write',
+            'crm.objects.companies.read',
+            'crm.objects.companies.write',
             'crm.lists.read',
             'crm.lists.write',
             'oauth',
@@ -38,7 +39,6 @@ class HubSpotAuthController extends Controller
 
 
     # callback to get token
-    # save token - to be finished
     public function handleHubSpotCallback(Request $request)
     {
         $http = new Client(['verify' => false]);
@@ -78,45 +78,4 @@ class HubSpotAuthController extends Controller
         
     }
 
-    # show contact form
-    public function showForm() {
-        return view('uploadContact');
-    }
-
-    # upload contact to hubspot
-    public function uploadContact(Request $request) {
-        
-        $contactData = $request->only([
-            'email',
-            'firstname',
-            'lastname',
-            'phone',
-            'company',
-            'website',
-            'lifecyclestage',
-        ]);
-
-        $this->createContact($contactData);
-
-        echo "Success";
-    }
-
-
-    public function createContact($contact) {
-        $token = HubspotToken::latest()->first()->getAccessToken();
-        
-        $response = \Http::withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-            'Content-Type' => 'application/json',
-        ])->post('https://api.hubapi.com/crm/v3/objects/contacts', [
-            'properties' => $contact,
-        ]);
-
-        if ($response->successful()) {
-            $responseData = $response->json();
-            dd('Contact uploaded successfully:', $responseData);
-        } else {
-            dd('Error uploading:', $response->body());
-        }
-    }
 }
