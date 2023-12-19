@@ -51,5 +51,32 @@ class ContactController extends Controller
             dd('Error uploading:', $response->body());
         }
     }
+
+
+    # associate contact with company
+    public function ccAssociation(Request $request) {
+        $token = HubspotToken::latest()->first()->getAccessToken();
+        $contactId = $request->input('contact_id');
+        $companyId = $request->input('company_id');
+
+        $url = "https://api.hubapi.com/crm/v4/associations/0-1/0-2/batch/associate/default";
+
+        $requestData = [
+            "objectIds" => ["{$contactId}", "{$companyId}"]
+        ];
+
+        $response = \Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'Content-Type' => 'application/json',
+        ])->post($url, $requestData);
+
+        if ($response->successful()) {
+            \Log::info($response->body());
+            $responseData = $response->json();
+        } else {
+            \Log::error('Error associating:', $response->body());
+        }
+    }
+    
 }
 

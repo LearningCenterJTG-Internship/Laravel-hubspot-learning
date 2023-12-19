@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Http\Controllers\HubSpotAuthController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\ContactController;
 
 
 
@@ -30,11 +31,14 @@ Route::get('/hubspot/auth', [HubSpotAuthController::class, 'redirectToHubSpot'])
 Route::get('/hubspot/callback', [HubSpotAuthController::class, 'handleHubSpotCallback']);
 
 # upload hubspot contact
-Route::get('/upload-contact-form', [HubSpotAuthController::class, 'showForm'])->name('upload-contact-form');
-Route::post('/upload-contact', [HubSpotAuthController::class, 'uploadContact'])->name('upload-contact');
+Route::get('/upload-contact-form', [ContactController::class, 'showForm'])->name('upload-contact-form');
+Route::post('/upload-contact', [ContactController::class, 'uploadContact'])->name('upload-contact');
 
 # process webhook action
 Route::post('/hubspot/contact', [WebhookController::class, 'webhookProcess']);
+
+# associate contact with company
+Route::post('/hubspot/add-association', [ContactController::class, 'ccAssociation']);
 
 
 

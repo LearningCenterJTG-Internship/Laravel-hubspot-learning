@@ -23,6 +23,7 @@ class HubSpotAuthController extends Controller
             'crm.objects.companies.write',
             'crm.lists.read',
             'crm.lists.write',
+            'tickets',
             'oauth',
         ];
 

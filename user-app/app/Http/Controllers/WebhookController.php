@@ -11,6 +11,9 @@ use App\Jobs\UpdateContactJob;
 use App\Jobs\CreateCompanyJob;
 use App\Jobs\UpdateCompanyJob;
 use App\Jobs\DeleteCompanyJob;
+use App\Jobs\CreateTicketJob;
+use App\Jobs\UpdateTicketJob;
+use App\Jobs\DeleteTicketJob;
 
 class WebhookController extends Controller
 {
@@ -22,8 +25,6 @@ class WebhookController extends Controller
     # - update email
     public function webhookProcess(Request $request) {
         $data = $request->all();
-
-        \Log::info($data);
 
         try {
             foreach($data as $event) {
@@ -40,6 +41,12 @@ class WebhookController extends Controller
                     $this->handleCompanyProperty($event);
                 } else if ($event['subscriptionType'] === 'company.deletion') {
                     $this->handleCompanyDelete($event);
+                } else if ($event['subscriptionType'] === 'ticket.creation') {
+                    $this->handleNewTicket($event);
+                } else if($event['subscriptionType'] === 'ticket.propertyChange') {
+                    $this->handleTicketProperty($event);
+                } else if ($event['subscriptionType'] === 'ticket.deletion') {
+                    $this->handleTicketDelete($event);
                 }
             }
 
@@ -88,5 +95,24 @@ class WebhookController extends Controller
     private function handleCompanyDelete($event) {
         $objectId = $event['objectId'];
         DeleteCompanyJob::dispatch($objectId)->onQueue('default');
+    }
+
+    private function handleNewTicket($event) {
+        $objectId = $event['objectId'];
+        CreateTicketJob::dispatch($objectId)->onQueue('default');
+        return response()->json(['success' => true]);
+    }
+
+    private function handleTicketProperty($event) {
+        $objectId = $event['objectId'];
+        $propertyName = $event['propertyName'];
+        $newPropertyValue = $event['propertyValue'];
+
+        UpdateTicketJob::dispatch($objectId, $propertyName, $newPropertyValue)->onQueue('default');
+    }
+
+    private function handleTicketDelete($event) {
+        $objectId = $event['objectId'];
+        DeleteTicketJob::dispatch($objectId)->onQueue('default');
     }
 }
