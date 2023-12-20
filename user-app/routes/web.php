@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\HubSpotAuthController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CRMFeatureController;
 
 
 
@@ -39,6 +40,12 @@ Route::post('/hubspot/contact', [WebhookController::class, 'webhookProcess']);
 
 # associate contact with company
 Route::post('/hubspot/add-association', [ContactController::class, 'ccAssociation']);
+
+# search objects
+Route::post('/hubspot/search', [CRMFeatureController::class, 'searchRequest']);
+
+# create custom object
+Route::post('/hubspot/custom', [CRMFeatureController::class, 'customObject']);
 
 
 
