@@ -12,8 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        '/hubspot-webhook', # webhook testing, to be deleted
-        '/hubspot/contact',
+        '/hubspot/webhook',
         '/hubspot/add-association',
         '/hubspot/search',
         '/hubspot/custom'

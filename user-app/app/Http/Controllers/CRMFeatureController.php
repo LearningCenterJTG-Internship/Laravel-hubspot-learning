@@ -49,7 +49,7 @@ class CRMFeatureController extends Controller
         }
     }
 
-    # scope issue
+    # need to update account
     public function customObject(Request $request) {
         
         $customSchemas = $request->json()->all();

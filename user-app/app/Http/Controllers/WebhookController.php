@@ -20,99 +20,93 @@ class WebhookController extends Controller
 
     # process the webhook payload
     # current available sync action:
-    # - create new contact
-    # - delete contact
-    # - update email
+    # - create new object
+    # - delete object
+    # - update object
     public function webhookProcess(Request $request) {
         $data = $request->all();
 
         try {
-            foreach($data as $event) {
-                
-                if ($event['subscriptionType'] === 'contact.creation') {
-                    $this->handleNewContact($event);
-                } else if($event['subscriptionType'] === 'contact.propertyChange') {
-                    $this->handleContactProperty($event);
-                } else if ($event['subscriptionType'] === 'contact.deletion') {
-                    $this->handleContactDelete($event);
-                } else if ($event['subscriptionType'] === 'company.creation') {
-                    $this->handleNewCompany($event);
-                } else if($event['subscriptionType'] === 'company.propertyChange') {
-                    $this->handleCompanyProperty($event);
-                } else if ($event['subscriptionType'] === 'company.deletion') {
-                    $this->handleCompanyDelete($event);
-                } else if ($event['subscriptionType'] === 'ticket.creation') {
-                    $this->handleNewTicket($event);
-                } else if($event['subscriptionType'] === 'ticket.propertyChange') {
-                    $this->handleTicketProperty($event);
-                } else if ($event['subscriptionType'] === 'ticket.deletion') {
-                    $this->handleTicketDelete($event);
+            $subscriptionHandlers = [
+                'contact.creation' => 'handleNewContact',
+                'contact.propertyChange' => 'handleContactProperty',
+                'contact.deletion' => 'handleContactDelete',
+                'company.creation' => 'handleNewCompany',
+                'company.propertyChange' => 'handleCompanyProperty',
+                'company.deletion' => 'handleCompanyDelete',
+                'ticket.creation' => 'handleNewTicket',
+                'ticket.propertyChange' => 'handleTicketProperty',
+                'ticket.deletion' => 'handleTicketDelete',
+            ];
+            
+            foreach ($data as $event) {
+                $subscriptionType = $event['subscriptionType'];
+            
+                if (isset($subscriptionHandlers[$subscriptionType])) {
+                    $handlerMethod = $subscriptionHandlers[$subscriptionType];
+                    $this->$handlerMethod($event);
+                } else {
+                    \Log::error("Unknown subscription type: " . $subscriptionType);
+                    return;
                 }
             }
-
-            return response()->json(['success' => true]);
+            
         } catch (\Exception $e) {
             \Log::error("Payload processing failed: " . $e->getMessage());
         }
     }
 
-    # handle new contact info (create)
-    private function handleNewContact($event) {
+    private function dispatchJob($jobClass, $objectId, $propertyName = null, $newPropertyValue = null) {
+        $dispatch = $jobClass::dispatch($objectId, $propertyName, $newPropertyValue);
+        $dispatch->onQueue('default');
+    }
+    
+    private function handleEvent($event, $jobClass) {
         $objectId = $event['objectId'];
-        CreateContactJob::dispatch($objectId)->onQueue('default');
+        $propertyName = $event['propertyName'] ?? null;
+        $newPropertyValue = $event['propertyValue'] ?? null;
+    
+        $this->dispatchJob($jobClass, $objectId, $propertyName, $newPropertyValue);
+    }
+    
+    private function handleNewContact($event) {
+        $this->handleEvent($event, CreateContactJob::class);
         return response()->json(['success' => true]);
     }
-
-    # handle property change info (update)
+    
     private function handleContactProperty($event) {
-        $objectId = $event['objectId'];
-        $propertyName = $event['propertyName'];
-        $newPropertyValue = $event['propertyValue'];
-
-        UpdateContactJob::dispatch($objectId, $propertyName, $newPropertyValue)->onQueue('default');
+        $this->handleEvent($event, UpdateContactJob::class);
     }
-
-    # handle deleting contact
+    
     private function handleContactDelete($event) {
-        $objectId = $event['objectId'];
-        DeleteContactJob::dispatch($objectId)->onQueue('default');
+        $this->handleEvent($event, DeleteContactJob::class);
     }
 
     private function handleNewCompany($event) {
-        $objectId = $event['objectId'];
-        CreateCompanyJob::dispatch($objectId)->onQueue('default');
+        $this->handleEvent($event, CreateContactJob::class);
         return response()->json(['success' => true]);
     }
 
     private function handleCompanyProperty($event) {
-        $objectId = $event['objectId'];
-        $propertyName = $event['propertyName'];
-        $newPropertyValue = $event['propertyValue'];
-
-        UpdateCompanyJob::dispatch($objectId, $propertyName, $newPropertyValue)->onQueue('default');
+        $this->handleEvent($event, updateCompanyJob::class);
     }
 
     private function handleCompanyDelete($event) {
-        $objectId = $event['objectId'];
-        DeleteCompanyJob::dispatch($objectId)->onQueue('default');
+        $this->handleEvent($event, DeleteCompanyJob::class);
     }
 
     private function handleNewTicket($event) {
-        $objectId = $event['objectId'];
-        CreateTicketJob::dispatch($objectId)->onQueue('default');
+        $this->handleEvent($event, CreateTicketJob::class);
         return response()->json(['success' => true]);
     }
 
     private function handleTicketProperty($event) {
-        $objectId = $event['objectId'];
-        $propertyName = $event['propertyName'];
-        $newPropertyValue = $event['propertyValue'];
-
-        UpdateTicketJob::dispatch($objectId, $propertyName, $newPropertyValue)->onQueue('default');
+        $this->handleEvent($event, updateTicketJob::class);
     }
 
     private function handleTicketDelete($event) {
-        $objectId = $event['objectId'];
-        DeleteTicketJob::dispatch($objectId)->onQueue('default');
+        $this->handleEvent($event, DeleteTicketJob::class);
     }
+    
 }
+    

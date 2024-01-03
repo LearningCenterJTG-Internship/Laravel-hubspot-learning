@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use \App\Models\HubspotToken;
 use App\Models\Contact;
+use App\Models\User;
 
 class HubSpotAuthController extends Controller
 {
@@ -53,8 +54,6 @@ class HubSpotAuthController extends Controller
                 'grant_type' => 'authorization_code',
             ],
         ]);
-
-        
 
         $token = json_decode((string) $response->getBody(), true)['access_token'];
         $refresh_token = json_decode((string) $response->getBody(), true)['refresh_token'];

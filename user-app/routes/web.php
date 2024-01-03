@@ -8,6 +8,7 @@ use App\Http\Controllers\HubSpotAuthController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CRMFeatureController;
+use App\Http\Controllers\UserAuthController;
 
 
 
@@ -29,14 +30,18 @@ Route::get('/', function () {
 
 # receive token
 Route::get('/hubspot/auth', [HubSpotAuthController::class, 'redirectToHubSpot']);
-Route::get('/hubspot/callback', [HubSpotAuthController::class, 'handleHubSpotCallback']);
+Route::get('/hubspot/callback', [HubSpotAuthController::class, 'handleHubSpotCallback']);#->middleware('hubspot.auth');
+
+# save authorized user
+Route::get('/user-auth', [UserAuthController::class, 'showUserForm'])->name('user-auth');
+Route::get('/user-save', [UserAuthController::class, 'saveUser'])->name('user-save');
 
 # upload hubspot contact
 Route::get('/upload-contact-form', [ContactController::class, 'showForm'])->name('upload-contact-form');
 Route::post('/upload-contact', [ContactController::class, 'uploadContact'])->name('upload-contact');
 
 # process webhook action
-Route::post('/hubspot/contact', [WebhookController::class, 'webhookProcess']);
+Route::post('/hubspot/webhook', [WebhookController::class, 'webhookProcess']);
 
 # associate contact with company
 Route::post('/hubspot/add-association', [ContactController::class, 'ccAssociation']);
