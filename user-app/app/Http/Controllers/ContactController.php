@@ -10,6 +10,13 @@ use App\Models\Contact;
 
 class ContactController extends Controller
 {
+    protected $hubspot_token;
+
+    public function __construct()
+    {
+        $this->hubspot_token = HubspotToken::latest()->first()->getAccessToken();
+    }
+
     # show contact form
     public function showForm() {
         return view('uploadContact');
@@ -35,7 +42,7 @@ class ContactController extends Controller
 
 
     public function createContact($contact) {
-        $token = HubspotToken::latest()->first()->getAccessToken();
+        $token = $this->hubspot_token;
         
         $response = \Http::withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -55,7 +62,7 @@ class ContactController extends Controller
 
     # associate contact with company
     public function ccAssociation(Request $request) {
-        $token = HubspotToken::latest()->first()->getAccessToken();
+        $token = $this->hubspot_token;
         $contactId = $request->input('contact_id');
         $companyId = $request->input('company_id');
 
@@ -77,6 +84,37 @@ class ContactController extends Controller
             \Log::error('Error associating:', $response->body());
         }
     }
+
+    # retrieve a batch of specific contacts
+    public function batchRetrieve(array $emails) {
+        $url = "https://api.hubspot.com/crm/v3/objects/contacts/batch/read";
+
+        $requestData = [
+            'properties' => [
+                'email',
+                'lifecyclestage',
+                'jobtitle',
+            ],
+            'idProperty' => 'email',
+            'inputs' => array_map(function ($email) {
+                return ['id' => $email];
+            }. $emails),
+        ];
+
+        $response = \Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'Content-Type' => 'application/json',
+        ])->post($url, $requestData);
+
+        if ($response->successful()) {
+            \Log::info($response->body());
+            $responseData = $response->json();
+            return $responseData;
+        } else {
+            \Log::error('Error associating:', $response->body());
+        }
+    }
+
     
 }
 

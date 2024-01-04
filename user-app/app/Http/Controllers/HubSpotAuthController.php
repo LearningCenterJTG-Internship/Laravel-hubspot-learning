@@ -14,20 +14,21 @@ use App\Models\User;
 
 class HubSpotAuthController extends Controller
 {
+    protected $hubspot_scopes = [
+        'crm.objects.contacts.read',
+        'crm.objects.contacts.write',
+        'crm.objects.companies.read',
+        'crm.objects.companies.write',
+        'crm.lists.read',
+        'crm.lists.write',
+        'tickets',
+        'oauth',
+    ];
+
     # hubspot authorization
     public function redirectToHubSpot()
     {
-        $scopes = [
-            'crm.objects.contacts.read',
-            'crm.objects.contacts.write',
-            'crm.objects.companies.read',
-            'crm.objects.companies.write',
-            'crm.lists.read',
-            'crm.lists.write',
-            'tickets',
-            'oauth',
-        ];
-
+        $scopes = $this->hubspot_scopes;
         $query = http_build_query([
             'client_id' => config('services.hubspot.client_id'),
             'redirect_uri' => config('services.hubspot.redirect'),
