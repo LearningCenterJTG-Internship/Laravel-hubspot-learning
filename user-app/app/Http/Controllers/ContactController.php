@@ -115,6 +115,31 @@ class ContactController extends Controller
         }
     }
 
-    
+    # retrieve a list of owners
+    public function getOwners()
+    {
+        $url = "https://your-crm-api-url/crm/v3/owners";
+
+        $response = \Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'Content-Type' => 'application/json',
+        ])->get($url);
+
+        if ($response->successful()) {
+            $owners = $response->json();
+
+            foreach ($owners as $owner) {
+                $id = $owner['id'];
+                $userId = $owner['userId'];
+                $name = $owner['name'];
+                $email = $owner['email'];
+                $createdAt = $owner['createdAt'];
+                $updatedAt = $owner['updatedAt'];
+            }
+
+        } else {
+            \Log::error('Error retrieving owners:', $response->body());
+        }
+    }
 }
 
