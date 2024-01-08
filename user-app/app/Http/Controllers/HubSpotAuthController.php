@@ -79,4 +79,9 @@ class HubSpotAuthController extends Controller
         
     }
 
+    public function getToken()
+    {
+        return HubspotToken::latest()->first()->getAccessToken();
+    }
+
 }

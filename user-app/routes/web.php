@@ -31,6 +31,7 @@ Route::get('/', function () {
 # receive token
 Route::get('/hubspot/auth', [HubSpotAuthController::class, 'redirectToHubSpot']);
 Route::get('/hubspot/callback', [HubSpotAuthController::class, 'handleHubSpotCallback']);#->middleware('hubspot.auth');
+Route::get('/hubspot/token', [HubSpotAuthController::class, 'getToken']);
 
 # save authorized user
 Route::get('/user-auth', [UserAuthController::class, 'showUserForm'])->name('user-auth');
