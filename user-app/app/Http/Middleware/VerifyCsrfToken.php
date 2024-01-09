@@ -15,6 +15,7 @@ class VerifyCsrfToken extends Middleware
         '/hubspot/webhook',
         '/hubspot/add-association',
         '/hubspot/search',
-        '/hubspot/custom'
+        '/hubspot/custom',
+        '/hubspot/token'
     ];
 }

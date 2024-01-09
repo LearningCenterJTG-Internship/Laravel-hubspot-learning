@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 function Example() {
+    console.log("here is the example");
     return (
         <div className="container">
             <div className="row justify-content-center">

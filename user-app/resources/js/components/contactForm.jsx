@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom/client';
+
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -19,36 +21,30 @@ const ContactForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Your API endpoint for contact upload
-    const apiUrl = 'https://api.hubapi.com/crm/v3/objects/contacts';
+    await handleContactUpload();
+  };
 
+  const handleContactUpload = async () => {
     try {
-        const tokenResponse = await fetch('http://localhost:8000/hubspot/token');
-        const tokenData = await tokenResponse.json();
-        const token = "";
+      const token = "";
+      const response = await fetch('http://127.0.0.1:8001/hubspot/upload-to-contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
-        if (tokenResponse.ok) {
-            token = tokenData.token;
-        }
-        
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify(formData),
-        });
+      const responseData = await response.json();
 
-        if (response.ok) {
-            // Handle success, e.g., show a success message
-            console.log('Contact uploaded successfully!');
-        } else {
-            // Handle error, e.g., show an error message
-            console.error('Error uploading contact.');
-        }
+      if (response.ok) {
+        console.log('Contact uploaded successfully:', responseData);
+      } else {
+        console.error('Failed to upload contact:', responseData);
+      }
     } catch (error) {
-        console.error('Error:', error);
+      console.error('Error uploading contact:', error);
     }
   };
 
@@ -119,4 +115,14 @@ const ContactForm = () => {
 };
 
 export default ContactForm;
+
+if (document.getElementById('ContactForm')) {
+  const Index = ReactDOM.createRoot(document.getElementById("ContactForm"));
+
+  Index.render(
+    <React.StrictMode>
+      <ContactForm />
+    </React.StrictMode>
+  );
+}
 
