@@ -66,4 +66,56 @@ class CRMFeatureController extends Controller
             \Log::error("Failed to create: ",  ['response_body' => $response->body()]);
         }
     }
+
+    # create CRM cards
+    public function createCard() {
+
+        $token = HubspotToken::latest()->first()->getAccessToken();
+        
+        $cardData = [
+            'fetch' => [
+                'targetUrl' => 'https://www.example.com/demo-fetch',
+                'objectTypes' => [
+                    [
+                        'name' => 'contacts',
+                        'propertiesToSend' => [
+                            'email',
+                            'firstname',
+                        ],
+                    ],
+                ],
+            ],
+            'display' => [
+                'properties' => [
+                    [
+                        'name' => 'pet_name',
+                        'label' => 'Pets Name',
+                        'dataType' => 'STRING',
+                    ],
+                ],
+            ],
+            'actions' => [
+                'baseUrls' => [
+                    'https://www.example.com/demo-fetch',
+                ],
+            ],
+            'title' => 'PetSpot',
+        ];
+
+        try {
+            $response = \Http::withHeaders([
+                'Authorization' => 'Bearer ' . $token,
+                'Content-Type' => 'application/json',
+            ])->post('https://api.hubapi.com/crm/v3/extensions/cards-dev/{2551361}', $cardData);
+        
+            if ($response->successful()) {
+                $responseData = $response->json();
+                var_dump($responseData);
+            } else {
+                echo 'Error creating CRM card: ' . $response->body();
+            }
+        } catch (\Exception $e) {
+            echo 'Exception: ' . $e->getMessage();
+        }
+    }
 }

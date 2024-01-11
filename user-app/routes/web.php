@@ -9,6 +9,7 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CRMFeatureController;
 use App\Http\Controllers\UserAuthController;
+use App\Http\Controllers\CRMCardController;
 
 
 
@@ -52,6 +53,12 @@ Route::post('/hubspot/search', [CRMFeatureController::class, 'searchRequest']);
 
 # create custom object
 Route::post('/hubspot/custom', [CRMFeatureController::class, 'customObject']);
+
+# create CRM cards
+Route::post('/hubspot/cards', [CRMFeatureController::class, 'createCard']);
+
+# fetch CRM cards
+Route::get('/hubspot/fetch-cards', [CRMCardController::class, 'fetchCard']);
 
 
 
