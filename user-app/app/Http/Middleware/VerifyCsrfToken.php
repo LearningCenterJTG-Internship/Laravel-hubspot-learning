@@ -16,6 +16,9 @@ class VerifyCsrfToken extends Middleware
         '/hubspot/add-association',
         '/hubspot/search',
         '/hubspot/custom',
-        '/hubspot/token'
+        '/hubspot/token',
+        '/template',
+        '/template-token',
+        '/event-create'
     ];
 }

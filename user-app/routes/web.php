@@ -10,6 +10,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CRMFeatureController;
 use App\Http\Controllers\UserAuthController;
 use App\Http\Controllers\CRMCardController;
+use App\Http\Controllers\timelineController;
 
 
 
@@ -58,7 +59,11 @@ Route::post('/hubspot/custom', [CRMFeatureController::class, 'customObject']);
 Route::post('/hubspot/cards', [CRMFeatureController::class, 'createCard']);
 
 # fetch CRM cards
-Route::get('/hubspot/fetch-cards', [CRMCardController::class, 'fetchCard']);
+Route::get('/hubspot/fetch-cards', [CRMCardController::class, 'fetchSample']);
 
-
-
+# timeline template
+Route::post('/template', [timelineController::class, 'createTemplate']);
+Route::get('/retrieve-template', [timelineController::class, 'retrieveTemplate']);
+Route::post('/template-token', [timelineController::class, 'createToken']);
+Route::get('/template-token-retrieve', [timelineController::class, 'retrieveTimelineToken']);
+Route::post('/event-create', [timelineController::class, 'createEvent']);

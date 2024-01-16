@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use HubSpot\Factory;
 use HubSpot\Client\Crm\Extensions\CardsDev\ApiException;
 use HubSpot\Client\Crm\Extensions\CardsDev\Model\CardCreateRequest;
+use HubSpot\Client\Crm\Extensions\CardsDev;
 
 class CRMCardController extends Controller
 {
     public function fetchSample()
     {
         $apiKey = config('HUBSPOT_API_KEY');
-        $client = Factory::createWithApiKey($apiKey);
+        $client = Factory::createWithApiKey("b5e3eb13-c1cc-4409-a55f-63ee3cf49807");
 
         try {
             $apiResponse = $client->crm()->extensions()->cardsDev()->sampleresponseApi()->getCardsSampleResponse();
@@ -24,7 +25,7 @@ class CRMCardController extends Controller
     public function fetchCard()
     {
         $apiKey = config('HUBSPOT_API_KEY');
-        $client = Factory::createWithDeveloperApiKey($apiKey);
+        $client = Factory::createWithDeveloperApiKey("b5e3eb13-c1cc-4409-a55f-63ee3cf49807");
 
         try {
             $apiResponse = $client->crm()->extensions()->cardsDev()->cardsApi()->getAll(100);
