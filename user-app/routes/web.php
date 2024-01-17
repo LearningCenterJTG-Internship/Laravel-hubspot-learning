@@ -11,6 +11,7 @@ use App\Http\Controllers\CRMFeatureController;
 use App\Http\Controllers\UserAuthController;
 use App\Http\Controllers\CRMCardController;
 use App\Http\Controllers\timelineController;
+use App\Http\Controllers\noteController;
 
 
 
@@ -67,3 +68,7 @@ Route::get('/retrieve-template', [timelineController::class, 'retrieveTemplate']
 Route::post('/template-token', [timelineController::class, 'createToken']);
 Route::get('/template-token-retrieve', [timelineController::class, 'retrieveTimelineToken']);
 Route::post('/event-create', [timelineController::class, 'createEvent']);
+
+# note
+Route::post('/note-create', [noteController::class, 'createNote']);
+
