@@ -105,11 +105,10 @@ class timelineController extends Controller
         $response = \Http::get($url);
 
         if ($response->successful()) {
-            $data = $response->json();
-            var_dump($data);
+            \Log::info($response->body());
         } else {
-            $error = $response->json();
-            var_dump($error);
+            \Log::error('Error retrieving custom token:', ['response_body' => $response->body()]);
+            return response()->json(['error' => 'Failed to retrieve custom token'], $response->status());
         }
     }
 
@@ -138,11 +137,10 @@ class timelineController extends Controller
         ])->post($url, $requestData);
         
         if ($response->successful()) {
-            $data = $response->json();
-            var_dump($data);
+            \Log::info($response->body());
         } else {
-            $error = $response->json();
-            var_dump($error);
+            \Log::error('Error creating new event:', ['response_body' => $response->body()]);
+            return response()->json(['error' => 'Failed to create new event'], $response->status());
         }
     }
 

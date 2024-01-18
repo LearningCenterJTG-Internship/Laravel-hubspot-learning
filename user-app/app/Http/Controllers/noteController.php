@@ -46,10 +46,10 @@ class noteController extends Controller
 
         if ($response->successful()) {
             $data = $response->json();
-            var_dump($data);
+            \Log::info("Note successfully created:", $data);
         } else {
             $error = $response->json();
-            var_dump($error);
+            \Log::error("Error creating note:", $error);
         }
     }
 
@@ -65,10 +65,10 @@ class noteController extends Controller
 
         if ($response->successful()) {
             $data = $response->json();
-            var_dump($data);
+            \Log::info("Note successfully retrieved:", $data);
         } else {
             $error = $response->json();
-            var_dump($error);
+            \Log::error("Error retrieving note:", $error);
         }
     }
 
@@ -91,10 +91,10 @@ class noteController extends Controller
 
         if ($response->successful()) {
             $data = $response->json();
-            var_dump($data);
+            \Log::info("Note successfully updated:", $data);
         } else {
             $error = $response->json();
-            var_dump($error);
+            \Log::error("Error updating note:", $error);
         }
     } 
 
@@ -111,10 +111,114 @@ class noteController extends Controller
 
         if ($response->successful()) {
             $data = $response->json();
-            var_dump($data);
+            \Log::info("Note successfully deleted:", $data);
         } else {
             $error = $response->json();
-            var_dump($error);
+            \Log::error("Error deleting note:", $error);
+        }
+    }
+
+    public function mergeNote()
+    {
+        $mergedId = "";
+        $primaryId = "";
+
+        $url = "https://api.hubspot.com/crm/v3/objects/notes/merge";
+        $token = HubspotToken::latest()->first()->getAccessToken();
+
+        $publicMergeInput = [
+            'object_id_to_merge' => $mergedId,
+            'primary_object_id' => $primaryId,
+        ];
+        
+
+        $response = \Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . $token,
+        ])->post($url, $publicMergeInput);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            \Log::info("Note successfully merged:", $data);
+        } else {
+            $error = $response->json();
+            \Log::error("Error merging note:", $error);
+        }
+    }
+
+    public function GDPRdelete()
+    {
+        $idProperty = "";
+        $objectId = "";
+
+        $url = "https://api.hubspot.com/crm/v3/objects/notes/gdpr/purge";
+        $token = HubspotToken::latest()->first()->getAccessToken();
+
+        $publicGdprDeleteInput = [
+            'id_property' => $idProperty,
+            'object_id' => $objectId,
+        ];
+        
+        $response = \Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . $token,
+        ])->post($url, $publicGdprDeleteInput);
+        
+        if ($response->successful()) {
+            $data = $response->json();
+            \Log::info("GDPR deletion success:", $data);
+        } else {
+            $error = $response->json();
+            \Log::error("GDPR deletion error:", $error);
+        }
+    }
+
+    public function searchNote()
+    {
+        $query = "";
+        $limit = 0;
+        $after = "";
+        $sorts = ['string'];
+        $properties = ['string'];
+        $propertyName = "";
+        $highValue = "";
+        $operator = "EQ";
+
+        $url = "https://api.hubspot.com/crm/v3/objects/notes/search";
+        $token = HubspotToken::latest()->first()->getAccessToken();
+
+        $filter1 = [
+            'high_value' => $highValue,
+            'property_name' => $propertyName,
+            'values' => ['string'],
+            'value' => 'string',
+            'operator' => $operator,
+        ];
+
+        $filterGroup1 = [
+            'filters' => [$filter1],
+        ];
+
+        $publicObjectSearchRequest = [
+            'query' => $query,
+            'limit' => $limit,
+            'after' => $after,
+            'sorts' => $sorts,
+            'properties' => $properties,
+            'filter_groups' => [$filterGroup1],
+        ];
+
+        $response = \Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . $token,
+        ])->post($url, $publicObjectSearchRequest);
+        
+        if ($response->successful()) {
+            $data = $response->json();
+            \Log::info("Note successfully searched:", $data);
+        } else {
+            $error = $response->json();
+            \Log::error("Error searching note:", $error);
         }
     }
 }
