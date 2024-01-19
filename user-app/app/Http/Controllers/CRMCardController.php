@@ -6,39 +6,64 @@ use HubSpot\Factory;
 use HubSpot\Client\Crm\Extensions\CardsDev\ApiException;
 use HubSpot\Client\Crm\Extensions\CardsDev\Model\CardCreateRequest;
 use HubSpot\Client\Crm\Extensions\CardsDev;
+use Illuminate\Support\Facades\Config;
 
 class CRMCardController extends Controller
 {
     public function fetchSample()
     {
-        $apiKey = config('HUBSPOT_API_KEY');
-        $client = Factory::createWithApiKey("b5e3eb13-c1cc-4409-a55f-63ee3cf49807");
+        $apiKey = config('services.hubspot.apikey');
+        $url = "https://api.hubspot.com/crm/v3/extensions/cards-dev/sample-response?apikey={$apiKey}";
 
-        try {
-            $apiResponse = $client->crm()->extensions()->cardsDev()->sampleresponseApi()->getCardsSampleResponse();
-            var_dump($apiResponse);
-        } catch (ApiException $e) {
-            echo "Exception when calling sampleresponse_api->get_cards_sample_response: ", $e->getMessage();
+        $response = \Http::get($url);
+        if ($response->successful()) {
+            $data = $response->json();
+            \Log::info("Sample card successfully retrieved:", $data);
+        } else {
+            $error = $response->json();
+            \Log::error("Error retrieving sample card:", $error);
+        }
+    }
+
+    public function fetchCards()
+    {
+        $apiKey = config('services.hubspot.apikey');
+        $appId = '2551361';
+        $url = "https://api.hubspot.com/crm/v3/extensions/cards-dev/{$appId}?apikey={$apiKey}";
+        
+        $response = \Http::get($url);
+        if ($response->successful()) {
+            $data = $response->json();
+            \Log::info("CRM card successfully retrieved:", $data);
+        } else {
+            $error = $response->json();
+            \Log::error("Error retrieving CRM card:", $error);
         }
     }
 
     public function fetchCard()
     {
-        $apiKey = config('HUBSPOT_API_KEY');
-        $client = Factory::createWithDeveloperApiKey("b5e3eb13-c1cc-4409-a55f-63ee3cf49807");
+        $apiKey = config('services.hubspot.apikey');
+        $appId = '2551361';
+        $cardId = '';
+        $url = "https://api.hubspot.com/crm/v3/extensions/cards-dev/{$appId}/{$cardId}?apikey={$apiKey}";
 
-        try {
-            $apiResponse = $client->crm()->extensions()->cardsDev()->cardsApi()->getAll(100);
-            var_dump($apiResponse);
-        } catch (ApiException $e) {
-            echo "Exception when calling cards_api->get_all: ", $e->getMessage();
+        $response = \Http::get($url);
+        if ($response->successful()) {
+            $data = $response->json();
+            \Log::info("CRM card successfully retrieved:", $data);
+        } else {
+            $error = $response->json();
+            \Log::error("Error retrieving CRM card:", $error);
         }
     }
 
     public function createCard()
     {
-        $apiKey = config('HUBSPOT_API_KEY');
-        $client = Factory::createWithDeveloperApiKey($apiKey);
+        // 404 error after sending request
+        $apiKey = config('services.hubspot.apikey');
+        $appId = '2551361';
+        $url = "https://api.hubspot.com/crm/v3/extensions/cards-dev/{$appId}?apikey={$apiKey}";
         
         $fetch1 = [
             'targetUrl' => 'https =>//www.example.com/hubspot/target',
@@ -72,11 +97,82 @@ class CRMCardController extends Controller
             'title' => 'PetSpot',
             'actions' => $actions1,
         ]);
-        try {
-            $apiResponse = $client->crm()->extensions()->cardsDev()->cardsApi()->create(100, $cardCreateRequest);
-            var_dump($apiResponse);
-        } catch (ApiException $e) {
-            echo "Exception when calling cards_api->create: ", $e->getMessage();
+        
+        $response = \Http::post($url, $cardCreateRequest);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            \Log::info("CRM card successfully created:", $data);
+        } else {
+            $error = $response->json();
+            \Log::error("Error creating CRM card:", $error);
+        }
+    }
+
+    public function updateCard()
+    {
+        $apiKey = config('services.hubspot.apikey');
+        $appId = '2551361';
+        $cardId = '';
+        $url = "https://api.hubspot.com/crm/v3/extensions/cards-dev/{$appId}/{$cardId}?apikey={$apiKey}";
+
+        $fetch1 = [
+            'targetUrl' => 'https =>//www.example.com/hubspot/target',
+            'objectTypes' => [
+                [
+                    'name' => 'contacts',
+                    'propertiesToSend' => [
+                        'email',
+                        'firstname'
+                    ]
+                ]
+            ]
+        ];
+        $display1 = [
+            'properties' => [
+                [
+                    'name' => 'pet_name',
+                    'label' => 'Pets Name',
+                    'dataType' => 'STRING'
+                ]
+            ]
+        ];
+        $actions1 = [
+            'baseUrls' => [
+                'https =>//www.example.com/hubspot'
+            ]
+        ];
+        $cardPatchRequest = new CardPatchRequest([
+            'fetch' => $fetch1,
+            'display' => $display1,
+            'title' => 'PetSpot',
+            'actions' => $actions1,
+        ]);
+
+        $response = \Http::patch($url, $cardPatchRequest);
+        if ($response->successful()) {
+            $data = $response->json();
+            \Log::info("CRM card successfully updated:", $data);
+        } else {
+            $error = $response->json();
+            \Log::error("Error updating CRM card:", $error);
+        }
+    }
+
+    public function deleteCard()
+    {
+        $apiKey = config('services.hubspot.apikey');
+        $appId = '2551361';
+        $cardId = '';
+        $url = "https://api.hubspot.com/crm/v3/extensions/cards-dev/{$appId}/{$cardId}?apikey={$apiKey}";
+
+        $response = \Http::delete($url);
+        if ($response->successful()) {
+            $data = $response->json();
+            \Log::info("CRM card successfully deleted:", $data);
+        } else {
+            $error = $response->json();
+            \Log::error("Error deleting CRM card:", $error);
         }
     }
 }

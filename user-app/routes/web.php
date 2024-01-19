@@ -60,7 +60,7 @@ Route::post('/hubspot/custom', [CRMFeatureController::class, 'customObject']);
 Route::post('/hubspot/cards', [CRMFeatureController::class, 'createCard']);
 
 # fetch CRM cards
-Route::get('/hubspot/fetch-cards', [CRMCardController::class, 'fetchSample']);
+Route::get('/hubspot/fetch-cards', [CRMCardController::class, 'fetchCards']);
 
 # timeline template
 Route::post('/template', [timelineController::class, 'createTemplate']);

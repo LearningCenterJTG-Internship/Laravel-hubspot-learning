@@ -35,5 +35,6 @@ return [
         'client_id' => env('HS_CLIENT_ID'),
         'client_secret' => env('HS_CLIENT_SECRET'),
         'redirect' => env('HS_REDIRECT_URL'),
+        'apikey' => env('HS_API_KEY')
     ],
 ];

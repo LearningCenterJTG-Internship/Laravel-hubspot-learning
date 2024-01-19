@@ -10,7 +10,7 @@ class timelineController extends Controller
     public function createTemplate(Request $request)
     {
         try {
-            $token = 'b5e3eb13-c1cc-4409-a55f-63ee3cf49807';
+            $token = config('services.hubspot.apikey');
             $appId = '2551361';
     
             $url = "https://api.hubapi.com/crm/v3/timeline/{$appId}/event-templates?hapikey={$token}";
@@ -38,7 +38,7 @@ class timelineController extends Controller
 
     public function retrieveTemplate() 
     {
-        $token = 'b5e3eb13-c1cc-4409-a55f-63ee3cf49807';
+        $token = config('services.hubspot.apikey');
         $appId = '2551361';
 
         $url = "https://api.hubapi.com/crm/v3/timeline/{$appId}/event-templates?hapikey={$token}";
@@ -59,7 +59,7 @@ class timelineController extends Controller
 
     public function createToken(Request $request)
     {
-        $token = 'b5e3eb13-c1cc-4409-a55f-63ee3cf49807';
+        $token = config('services.hubspot.apikey');
         $appId = '2551361';
 
         $eventTemplateId = $request->input('eventTemplateId');
@@ -96,7 +96,7 @@ class timelineController extends Controller
 
     public function retrieveTimelineToken()
     {
-        $token = 'b5e3eb13-c1cc-4409-a55f-63ee3cf49807';
+        $token = config('services.hubspot.apikey');
         $appId = '2551361';
         $eventTemplateId = "1288838";
 
