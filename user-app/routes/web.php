@@ -12,6 +12,7 @@ use App\Http\Controllers\UserAuthController;
 use App\Http\Controllers\CRMCardController;
 use App\Http\Controllers\timelineController;
 use App\Http\Controllers\noteController;
+use App\Http\Controllers\callController;
 
 
 
@@ -72,3 +73,9 @@ Route::post('/event-create', [timelineController::class, 'createEvent']);
 # note
 Route::post('/note-create', [noteController::class, 'createNote']);
 
+# call
+Route::post('/call-create', [callController::class, 'createCall']);
+Route::get('/call-retrieve', [callController::class, 'retrieveCall']);
+Route::put('/call-update', [callController::class, 'updateCall']);
+Route::delete('/call-delete', [callController::class, 'deleteCall']);
+Route::put('/call-association', [callController::class, 'callAssociation']);
