@@ -13,6 +13,7 @@ use App\Http\Controllers\CRMCardController;
 use App\Http\Controllers\timelineController;
 use App\Http\Controllers\noteController;
 use App\Http\Controllers\callController;
+use App\Http\Controllers\listController;
 
 
 
@@ -79,3 +80,6 @@ Route::get('/call-retrieve', [callController::class, 'retrieveCall']);
 Route::put('/call-update', [callController::class, 'updateCall']);
 Route::delete('/call-delete', [callController::class, 'deleteCall']);
 Route::put('/call-association', [callController::class, 'callAssociation']);
+
+# list
+Route::post('/list-create', [listController::class, 'createList']);

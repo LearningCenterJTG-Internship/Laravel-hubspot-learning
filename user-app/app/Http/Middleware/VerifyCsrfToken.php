@@ -26,6 +26,7 @@ class VerifyCsrfToken extends Middleware
         '/call-create',
         '/call-update',
         'call-delete',
-        'call-association'
+        'call-association',
+        'list-create'
     ];
 }
