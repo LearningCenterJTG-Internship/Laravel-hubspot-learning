@@ -23,6 +23,8 @@ class HubSpotAuthController extends Controller
         'crm.lists.write',
         'tickets',
         'oauth',
+        'files',
+        'crm.import'
     ];
 
     # hubspot authorization

@@ -14,6 +14,7 @@ use App\Http\Controllers\timelineController;
 use App\Http\Controllers\noteController;
 use App\Http\Controllers\callController;
 use App\Http\Controllers\listController;
+use App\Http\Controllers\fileController;
 
 
 
@@ -83,3 +84,6 @@ Route::put('/call-association', [callController::class, 'callAssociation']);
 
 # list
 Route::post('/list-create', [listController::class, 'createList']);
+
+# file 
+Route::post('/create-file', [fileController::class, 'uploadFile']);
